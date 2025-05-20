@@ -6,8 +6,8 @@ const steps = [
   'Banco',
   'Produto',
   'Dados da empresa e conta',
-  'Carta Finnet',
-  'Carta Nexxsera',
+  'Tipo de VAN',
+  'Revisão',
   'Encerramento',
 ];
 
