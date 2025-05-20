@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field } from 'formik';
-import * as Yup from 'yup';
 import { IMaskInput } from 'react-imask';
 import InputField from '../../Form/InputField';
 import Button from '../../Button/Button';
 import { getCNABs, type CNABData } from '../../../services/api';
+import { formValidationSchema } from '../../../utils/validation';
+import { maskCNPJ, maskPhone, maskAccount, maskAccountDV, maskBranch, maskBranchDV, maskAgreement } from '../../../utils/mask';
 
 interface FormData {
   cnpj: string;
@@ -32,35 +33,6 @@ interface FormStepProps {
   onBack: () => void;
   selectedBank: number | null;
 }
-
-const validationSchema = Yup.object().shape({
-  cnpj: Yup.string()
-    .required('CNPJ é obrigatório')
-    .matches(/^[0-9]{2}\.[0-9]{3}\.[0-9]{3}\/[0-9]{4}-[0-9]{2}$/, 'CNPJ inválido'),
-  corporate_name: Yup.string().required('Razão Social é obrigatória'),
-  responsible_person_name: Yup.string().required('Nome do Responsável é obrigatório'),
-  responsible_person_position: Yup.string().required('Cargo do Responsável é obrigatório'),
-  responsible_person_cellphone: Yup.string()
-    .required('Telefone é obrigatório')
-    .matches(/^\d{10,11}$/, 'Telefone inválido - Digite apenas números'),
-  responsible_person_email: Yup.string()
-    .email('E-mail inválido')
-    .required('E-mail é obrigatório'),
-  branch_number: Yup.string().required('Agência é obrigatória'),
-  branch_dv: Yup.string(),
-  account_number: Yup.string().required('Conta é obrigatória'),
-  account_dv: Yup.string().required('DV da Conta é obrigatório'),
-  agreement_number: Yup.string().required('Convênio é obrigatório'),
-  cnab: Yup.string().required('CNAB é obrigatório'),
-  manager_name: Yup.string().required('Nome do Gerente é obrigatório'),
-  manager_cellphone: Yup.string()
-    .required('Telefone do Gerente é obrigatório')
-    .matches(/^\d{10,11}$/, 'Telefone inválido - Digite apenas números'),
-  manager_email: Yup.string()
-    .email('E-mail inválido')
-    .required('E-mail do Gerente é obrigatório'),
-  bank: Yup.string().required('Banco é obrigatório'),
-});
 
 export const FormStep: React.FC<FormStepProps> = ({
   formData,
@@ -104,7 +76,7 @@ export const FormStep: React.FC<FormStepProps> = ({
 
       <Formik
         initialValues={initialValues}
-        validationSchema={validationSchema}
+        validationSchema={formValidationSchema}
         onSubmit={(values) => {
           console.log('Formulário submetido com sucesso:', values);
           onUpdate(values);
@@ -173,8 +145,6 @@ export const FormStep: React.FC<FormStepProps> = ({
                         as={IMaskInput}
                         mask="00.000.000/0000-00"
                         {...field}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
                       />
                     )}
                   </Field>
@@ -223,8 +193,16 @@ export const FormStep: React.FC<FormStepProps> = ({
                         placeholder="Inserir telefone do responsável pela empresa"
                         error={touched.responsible_person_cellphone && errors.responsible_person_cellphone ? errors.responsible_person_cellphone : ''}
                         {...field}
-                        type="tel"
-                        maxLength={11}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const maskedValue = maskPhone(e.target.value);
+                          field.onChange({
+                            target: {
+                              name: field.name,
+                              value: maskedValue
+                            }
+                          });
+                        }}
+                        maxLength={15}
                       />
                     )}
                   </Field>
@@ -257,9 +235,9 @@ export const FormStep: React.FC<FormStepProps> = ({
                           label="Conta"
                           placeholder="Inserir o número da conta"
                           error={touched.account_number && errors.account_number ? errors.account_number : ''}
+                          as={IMaskInput}
+                          mask="000000"
                           {...field}
-                          maxLength={6}
-                          type="text"
                           className="flex-grow"
                         />
                       )}
@@ -270,9 +248,9 @@ export const FormStep: React.FC<FormStepProps> = ({
                           label="DV"
                           placeholder="DV"
                           error={touched.account_dv && errors.account_dv ? errors.account_dv : ''}
+                          as={IMaskInput}
+                          mask="00"
                           {...field}
-                          maxLength={2}
-                          type="text"
                           className="w-16"
                         />
                       )}
@@ -287,9 +265,9 @@ export const FormStep: React.FC<FormStepProps> = ({
                           label="Agência"
                           placeholder="Inserir o número da agência"
                           error={touched.branch_number && errors.branch_number ? errors.branch_number : ''}
+                          as={IMaskInput}
+                          mask="0000"
                           {...field}
-                          maxLength={4}
-                          type="text"
                           className="flex-grow"
                         />
                       )}
@@ -299,9 +277,9 @@ export const FormStep: React.FC<FormStepProps> = ({
                         <InputField
                           label="DV"
                           placeholder="DV"
+                          as={IMaskInput}
+                          mask="00"
                           {...field}
-                          maxLength={2}
-                          type="text"
                           className="w-16"
                         />
                       )}
@@ -316,6 +294,8 @@ export const FormStep: React.FC<FormStepProps> = ({
                         label="Convênio"
                         placeholder="Inserir o número do convênio"
                         error={touched.agreement_number && errors.agreement_number ? errors.agreement_number : ''}
+                        as={IMaskInput}
+                        mask="00000000000000000000"
                         {...field}
                       />
                     )}
@@ -390,8 +370,16 @@ export const FormStep: React.FC<FormStepProps> = ({
                         placeholder="Inserir telefone do gerente da conta bancária"
                         error={touched.manager_cellphone && errors.manager_cellphone ? errors.manager_cellphone : ''}
                         {...field}
-                        type="tel"
-                        maxLength={11}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const maskedValue = maskPhone(e.target.value);
+                          field.onChange({
+                            target: {
+                              name: field.name,
+                              value: maskedValue
+                            }
+                          });
+                        }}
+                        maxLength={15}
                       />
                     )}
                   </Field>
