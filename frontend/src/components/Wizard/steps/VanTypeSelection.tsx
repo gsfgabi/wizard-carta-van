@@ -4,7 +4,7 @@ import { getVanTypes, type VanTypeData } from '../../../services/api';
 
 interface VanTypeSelectionProps {
   selectedBank: number | null;
-  onNext: () => void;
+  onNext: (selectedVanTypes: string[]) => void;
   onBack: () => void;
   onSelect: (vanTypes: string[]) => void;
   selectedVanTypes: string[];
@@ -181,11 +181,11 @@ export const VanTypeSelection = memo(({
         <Button
           type="button"
           className="bg-[#8D44AD] text-white rounded-full px-10 py-2 font-semibold shadow-md hover:bg-[#7d379c] transition disabled:opacity-50"
-          onClick={onNext}
+          onClick={() => onNext(selectedVanTypes)}
           disabled={selectedVanTypes.length === 0 || vanTypes.length === 0}
           title={vanTypes.length === 0 ? "Nenhum tipo de VAN disponível para este banco." : selectedVanTypes.length === 0 ? "Selecione pelo menos um tipo de VAN para continuar." : ""}
         >
-          Próximo
+          Gerar Cartas
         </Button>
       </div>
     </>

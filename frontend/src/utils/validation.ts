@@ -38,7 +38,7 @@ export function isValidToken(token: string): boolean {
 }
 
 // Função auxiliar para validar telefone
-const validatePhone = (value: string) => {
+export const validatePhone = (value: string) => {
   if (!value) return false;
   
   const numbers = value.replace(/\D/g, '');
@@ -58,13 +58,13 @@ const validatePhone = (value: string) => {
 export const formValidationSchema = Yup.object().shape({
   cnpj: Yup.string()
     .required('CNPJ é obrigatório')
-    .matches(/^[0-9]{2}\.[0-9]{3}\.[0-9]{3}\/[0-9]{4}-[0-9]{2}$/, 'CNPJ inválido'),
+    .matches(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/, 'CNPJ inválido'),
   corporate_name: Yup.string().required('Razão Social é obrigatória'),
   responsible_person_name: Yup.string().required('Nome do Responsável é obrigatório'),
   responsible_person_position: Yup.string().required('Cargo do Responsável é obrigatório'),
   responsible_person_cellphone: Yup.string()
     .required('Telefone é obrigatório')
-    .test('phone', 'Telefone inválido - Use o formato (DDD) XXXX-XXXX para fixo ou (DDD) 9XXXX-XXXX para móvel', validatePhone),
+    .matches(/^\(\d{2}\) \d{5}-\d{4}$/, 'Telefone inválido - Use o formato (DDD) 9XXXX-XXXX'),
   responsible_person_email: Yup.string()
     .email('E-mail inválido')
     .required('E-mail é obrigatório'),
@@ -86,10 +86,10 @@ export const formValidationSchema = Yup.object().shape({
   manager_name: Yup.string().required('Nome do Gerente é obrigatório'),
   manager_cellphone: Yup.string()
     .required('Telefone do Gerente é obrigatório')
-    .test('phone', 'Telefone inválido - Use o formato (DDD) XXXX-XXXX para fixo ou (DDD) 9XXXX-XXXX para móvel', validatePhone),
+    .matches(/^\(\d{2}\) \d{5}-\d{4}$/, 'Telefone inválido - Use o formato (DDD) 9XXXX-XXXX'),
   manager_email: Yup.string()
     .email('E-mail inválido')
     .required('E-mail do Gerente é obrigatório'),
-  bank: Yup.string().required('Banco é obrigatório'),
+  // bank: Yup.string().required('Banco é obrigatório'),
 });
 

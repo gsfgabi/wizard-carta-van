@@ -3,7 +3,7 @@ import axios from 'axios';
 import type { Bank, FormData as FormDataType, Product, ZendeskTicket } from '../types';
 
 const API_BASE_URL = import.meta.env.DEV 
-  ? 'http://localhost:5174/api' 
+  ? 'http://localhost:5173/api' 
   : 'https://wizard-carta-van-teste.onrender.com';
 
 console.log('API_BASE_URL:', API_BASE_URL);
@@ -14,7 +14,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  timeout: 15000 // Reduzindo para 15 segundos
+  timeout: 15000 
 });
 
 // Função para retry
