@@ -15,7 +15,7 @@ interface ValidationStepProps {
   selectedVanTypes: string[];
   onBack: () => void;
   selectedBank: number | null;
-  generatedLetterContents: { type: string, content: string, formData: any, bankInfo: BankData | undefined, productInfo: ProductData[], vanTypeInfo: VanTypeData[], cnabs: CNABData[] }[];
+  generatedLetterContents: { type: string, content: string, formData: any, bankInfo: BankData | undefined, productInfo: ProductData[], vanTypeInfo: VanTypeData[], cnabs: CNABData[], productName: string }[];
   onConfirmAndSend: () => Promise<void>;
   loadingConfirmAndSend: boolean;
 }
@@ -29,14 +29,12 @@ export const ValidationStep = memo(({
   onConfirmAndSend,
   loadingConfirmAndSend,
 }: ValidationStepProps) => {
-  const [currentProductIndex, setCurrentProductIndex] = useState(0);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [loadingPdf, setLoadingPdf] = useState(false);
+  const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
   const [loadingData, setLoadingData] = useState(true);
   const [vanTypes, setVanTypes] = useState<VanTypeData[]>([]);
   const [products, setProducts] = useState<ProductData[]>([]);
   const [dataError, setDataError] = useState<string | null>(null);
-  const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
+  const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
 
   useEffect(() => {
     if (selectedBank) {
@@ -49,6 +47,10 @@ export const ValidationStep = memo(({
         .then(([vanTypesData, productsData]) => {
           setVanTypes(vanTypesData);
           setProducts(productsData);
+          // Seleciona o primeiro produto por padrão
+          if (productsData.length > 0) {
+            setSelectedProduct(productsData[0].id.toString());
+          }
         })
         .catch((error) => {
           console.error('Erro ao carregar dados para revisão:', error);
@@ -58,42 +60,19 @@ export const ValidationStep = memo(({
           setLoadingData(false);
         });
     } else {
-        setVanTypes([]);
-        setProducts([]);
-        setLoadingData(false);
+      setVanTypes([]);
+      setProducts([]);
+      setLoadingData(false);
     }
   }, [selectedBank]);
 
-  const handleGeneratePDF = async () => {
-    setLoadingPdf(true);
-    try {
-      // TODO: Implementar chamada à API para gerar o PDF
-      // Simulação temporária
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setPdfUrl('/sample.pdf');
-      toast.success('PDF gerado com sucesso!');
-    } catch (error) {
-      console.error('Erro ao buscar bancos:', error);
-      toast.error('Erro ao gerar o PDF. Tente novamente.');
-    } finally {
-      setLoadingPdf(false);
-    }
-  };
-
-  const handleNextProduct = () => {
-    if (currentProductIndex < selectedProducts.length - 1) {
-      setCurrentProductIndex(currentProductIndex + 1);
-    }
-  };
-
-  const handlePreviousProduct = () => {
-    if (currentProductIndex > 0) {
-      setCurrentProductIndex(currentProductIndex - 1);
-    }
-  };
+  // Filtra as cartas pelo produto selecionado
+  const filteredLetters = selectedProduct 
+    ? generatedLetterContents.filter(letter => letter.productInfo[0].id.toString() === selectedProduct)
+    : [];
 
   const handleNextLetter = () => {
-    if (currentLetterIndex < generatedLetterContents.length - 1) {
+    if (currentLetterIndex < filteredLetters.length - 1) {
       setCurrentLetterIndex(currentLetterIndex + 1);
     }
   };
@@ -104,8 +83,7 @@ export const ValidationStep = memo(({
     }
   };
 
-  const currentProduct = selectedProducts[currentProductIndex];
-  const currentLetter = generatedLetterContents[currentLetterIndex];
+  const currentLetter = filteredLetters[currentLetterIndex];
 
   return (
     <>
@@ -116,16 +94,42 @@ export const ValidationStep = memo(({
         Revise os dados preenchidos e o conteúdo da carta gerada antes de finalizar.
       </p>
 
+      {/* Seletor de Produto */}
+      {products.length > 1 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-black mb-3">Selecione o Produto:</h3>
+          <div className="flex flex-wrap gap-3">
+            {products.map((product) => (
+              <button
+                key={product.id}
+                onClick={() => {
+                  setSelectedProduct(product.id.toString());
+                  setCurrentLetterIndex(0);
+                }}
+                className={`
+                  px-4 py-2 rounded-full text-sm font-medium transition-colors
+                  ${selectedProduct === product.id.toString()
+                    ? 'bg-[#8D44AD] text-white'
+                    : 'bg-white text-[#8D44AD] border-2 border-[#8D44AD] hover:bg-[#f3eaff]'
+                  }
+                `}
+              >
+                {product.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Container principal para a carta e botões de navegação */}
       <div className="relative flex items-center justify-center mb-6">
-        
-        {/* Botão de Navegação Anterior (posicionado absolutamente à esquerda) */}
-        {generatedLetterContents.length > 1 && (
+        {/* Botão de Navegação Anterior */}
+        {filteredLetters.length > 1 && (
           <Button
             type="button"
             className="absolute left-0 z-10 p-2 bg-white rounded-full shadow-md text-[#8D44AD] hover:bg-[#f3eaff] disabled:opacity-50 transition-colors duration-200 -translate-y-1/2 top-1/2"
             onClick={handlePreviousLetter}
-            disabled={currentLetterIndex === 0 || loadingPdf}
+            disabled={currentLetterIndex === 0}
             aria-label="Carta anterior"
           >
             <ChevronLeftIcon className="h-6 w-6" aria-hidden="true" />
@@ -133,23 +137,20 @@ export const ValidationStep = memo(({
         )}
 
         {/* Exibir Conteúdo da Carta Atual */}
-        {generatedLetterContents.length > 0 && (
-          <div className="flex-grow max-w-full px-12 py-4"> {/* Removed gray background and border classes */}
+        {currentLetter && (
+          <div className="flex-grow max-w-full px-12 py-4">
             <h4 className="font-semibold text-black mb-2">
-              Carta: {currentLetter.type}
-              {generatedLetterContents.length > 1 && ` (${currentLetterIndex + 1} de ${generatedLetterContents.length})`}
+              Carta: {currentLetter.type} - {currentLetter.productName}
+              {filteredLetters.length > 1 && 
+                ` (${currentLetterIndex + 1} de ${filteredLetters.length})`
+              }
             </h4>
-            {
-              currentLetter.type === 'Finnet' && (
-                <FinnetLetterDisplay data={currentLetter} />
-              )
-            }
-            {
-              currentLetter.type === 'Nexxera' && (
-                <NexxeraLetterDisplay data={currentLetter} />
-              )
-            }
-            {/* Fallback para tipos desconhecidos - exibir conteúdo simples */}
+            {currentLetter.type === 'Finnet' && (
+              <FinnetLetterDisplay data={currentLetter} />
+            )}
+            {currentLetter.type === 'Nexxera' && (
+              <NexxeraLetterDisplay data={currentLetter} />
+            )}
             {!['Finnet', 'Nexxera'].includes(currentLetter.type) && (
               <div className="whitespace-pre-wrap text-sm text-gray-800">
                 {currentLetter.content}
@@ -158,21 +159,19 @@ export const ValidationStep = memo(({
           </div>
         )}
 
-        {/* Botão de Navegação Próximo (posicionado absolutamente à direita) */}
-        {generatedLetterContents.length > 1 && (
+        {/* Botão de Navegação Próximo */}
+        {filteredLetters.length > 1 && (
           <Button
             type="button"
             className="absolute right-0 z-10 p-2 bg-white rounded-full shadow-md text-[#8D44AD] hover:bg-[#f3eaff] disabled:opacity-50 transition-colors duration-200 -translate-y-1/2 top-1/2"
             onClick={handleNextLetter}
-            disabled={currentLetterIndex === generatedLetterContents.length - 1 || loadingPdf}
+            disabled={currentLetterIndex === filteredLetters.length - 1}
             aria-label="Próxima carta"
           >
             <ChevronRightIcon className="h-6 w-6" aria-hidden="true" />
           </Button>
         )}
-
-      </div> {/* Fim do Container principal */}
-
+      </div>
 
       {loadingData ? (
         <div className="w-full h-full flex items-center justify-center">
@@ -186,7 +185,7 @@ export const ValidationStep = memo(({
               if (selectedBank) {
                 setLoadingData(true);
                 setDataError(null);
-                 Promise.all([
+                Promise.all([
                   getVanTypes(selectedBank.toString()),
                   getProducts(selectedBank.toString()),
                 ])
@@ -232,7 +231,7 @@ export const ValidationStep = memo(({
           <div>
             <h3 className="text-lg font-semibold text-black mb-2">Tipos de VAN Selecionados</h3>
             <div className="space-y-2">
-               {selectedVanTypes.length === 0 ? (
+              {selectedVanTypes.length === 0 ? (
                 <p className="text-gray-600">Nenhum tipo de VAN selecionado.</p>
               ) : (
                 selectedVanTypes.map((vanTypeId) => {
@@ -244,19 +243,19 @@ export const ValidationStep = memo(({
                     </div>
                   );
                 })
-               )}
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* Botões de Ação: Voltar, Gerar PDF, Confirmar e Enviar */}
+      {/* Botões de Ação */}
       <div className="flex justify-between items-center mt-8">
         <Button
           type="button"
           className="border-2 border-[#8D44AD] text-[#8D44AD] bg-white rounded-full px-10 py-2 font-semibold transition hover:bg-[#f3eaff] hover:text-[#8D44AD] disabled:opacity-50 shadow-none"
           onClick={onBack}
-          disabled={loadingData || loadingPdf}
+          disabled={loadingData}
         >
           Voltar
         </Button>

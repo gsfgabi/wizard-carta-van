@@ -151,16 +151,19 @@ export const Wizard: React.FC<WizardProps> = ({ onBackToIntro }) => {
       return;
     }
 
-    // Gerar cartas baseadas nos tipos de VAN selecionados
-    const lettersWithTypes = vanTypeInfo.map(van => ({
-      type: van.type,
-      content: '', // O conteúdo será gerado pelos componentes específicos
-      formData: formData,
-      bankInfo: bankInfo,
-      productInfo: productInfo,
-      vanTypeInfo: vanTypeInfo,
-      cnabs: cnabs,
-    }));
+    // Gerar uma carta para cada combinação de produto e VAN
+    const lettersWithTypes = productInfo.flatMap(product => 
+      vanTypeInfo.map(van => ({
+        type: van.type,
+        content: '', // O conteúdo será gerado pelos componentes específicos
+        formData: formData,
+        bankInfo: bankInfo,
+        productInfo: [product], // Passando apenas o produto específico
+        vanTypeInfo: [van], // Passando apenas a VAN específica
+        cnabs: cnabs,
+        productName: product.name, // Adicionando nome do produto para referência
+      }))
+    );
 
     setGeneratedLetterContents(lettersWithTypes);
     setCurrentStep("validation");

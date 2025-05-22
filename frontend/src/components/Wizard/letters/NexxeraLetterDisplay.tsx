@@ -44,8 +44,14 @@ export const NexxeraLetterDisplay = memo(({
       {/* Cabeçalho */}
       <div className="text-center mb-6 pb-6 border-b-2 border-gray-400 print:mb-4 print:pb-4 print:border-b print:border-gray-800">
         <h3 className="text-xl font-bold mb-4 uppercase">CARTA DE ABERTURA DE RELACIONAMENTO</h3> {/* Ajustado tamanho, peso e uppercase */}
-        {/* LOGO Placeholder - Se tiver uma URL ou componente de logo, use aqui */}
-        <div className="mb-4 py-8 border border-gray-400 print:border-gray-800 text-gray-700 text-sm flex items-center justify-center">[LOGO]</div> {/* Placeholder com borda conforme imagem */}
+        {/* Logo do Plugbank */}
+        <div className="mb-4 py-4 flex items-center justify-center">
+          <img 
+            src="/logo.png" 
+            alt="Logo Plugbank" 
+            className="h-20 print:h-10 object-contain"
+          />
+        </div>
         <div className="text-lg font-semibold mb-1">{razaoSocialContratante}</div> {/* Ajustado tamanho */} 
         <p className="text-sm text-gray-600">Carta Circular</p>
       </div>
