@@ -28,7 +28,6 @@ export const VanTypeSelection = memo(({
       getVanTypes(selectedBank.toString())
         .then((data) => {
           setVanTypes(data);
-          // Se houver apenas uma VAN disponível, seleciona automaticamente
           if (data.length === 1 && data[0].available) {
             onSelect([data[0].id.toString()]);
           }
@@ -87,7 +86,6 @@ export const VanTypeSelection = memo(({
     );
   }
 
-  // Verifica se todos os tipos de VAN estão indisponíveis
   const allVanTypesUnavailable = vanTypes.length > 0 && vanTypes.every(vanType => !vanType.available);
 
   if (allVanTypesUnavailable) {
@@ -122,7 +120,7 @@ export const VanTypeSelection = memo(({
           <Button
             type="button"
             className="bg-[#8D44AD] text-white rounded-full px-10 py-2 font-semibold shadow-md hover:bg-[#7d379c] transition disabled:opacity-50"
-            onClick={onNext}
+            onClick={() => onNext([])}
             disabled={true}
           >
             Próximo

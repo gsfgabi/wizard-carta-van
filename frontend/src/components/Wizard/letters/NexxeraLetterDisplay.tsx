@@ -16,7 +16,6 @@ export const NexxeraLetterDisplay = memo(({
 }: NexxeraLetterDisplayProps) => {
   const { formData, bankInfo, productInfo, vanTypeInfo } = data;
 
-  // Agora use formData, bankInfo, productInfo, etc. diretamente para preencher o template JSX
   const bancoNome = bankInfo?.name || '[NOME DO BANCO]';
   const bancoAgencia = formData.branch_number || '[AGÊNCIA]';
   const cidadebanco = formData.branch_city || '[CIDADE DO BANCO]';
@@ -33,7 +32,7 @@ export const NexxeraLetterDisplay = memo(({
   const telefoneEmpresa = formData.responsible_person_cellphone || '[TELEFONE EMPRESA]';
   const emailRespEmpresa = formData.responsible_person_email || '[E-MAIL RESP EMPRESA]';
 
-  // Placeholder para Responsável Técnico - Não vem da API ou form
+  // Placeholder para Responsável Técnico 
   const respTecnospeedNome = '[RESP TECNOSPEED]';
   const respTecnospeedEmail = '[RESP. TECNOSPEED]';
 
@@ -120,16 +119,15 @@ export const NexxeraLetterDisplay = memo(({
              </thead>
              <tbody>
                <tr>
-                 {/* Renderizar produtos selecionados, limitando a 3 colunas na primeira linha */}
+                 
                  {productInfo.slice(0, 3).map((product, prodIndex) => (
                    <td key={prodIndex} className="border border-gray-400 print:border-gray-800 px-4 py-2 text-gray-700 align-top">[{product.name.toUpperCase()}]</td>
                  ))}
-                 {/* Preencher células vazias se menos de 3 produtos para manter o formato */}
+                 
                  {[...Array(Math.max(0, 3 - productInfo.length))].map((_, emptyIndex) => (
                    <td key={`empty-${emptyIndex}`} className="border border-gray-400 print:border-gray-800 px-4 py-2 text-gray-700 align-top">[SERVIÇO DO BANCO]</td>
                  ))}
                </tr>
-                {/* Adicionar linhas adicionais para produtos > 3 */}
                 {productInfo.length > 3 && (
                    <tr>
                       {productInfo.slice(3, 6).map((product, prodIndex) => (
@@ -140,7 +138,7 @@ export const NexxeraLetterDisplay = memo(({
                        ))}
                    </tr>
                 )}
-                 {/* Adicionar mais linhas se necessário (por exemplo, para produtos 7-9) */}
+                 
                 {productInfo.length > 6 && (
                    <tr>
                       {productInfo.slice(6, 9).map((product, prodIndex) => (
@@ -151,13 +149,13 @@ export const NexxeraLetterDisplay = memo(({
                        ))}
                    </tr>
                 )}
-                {/* Pode continuar adicionando linhas conforme necessário */}
+                
              </tbody>
            </table>
         )}
       </div>
 
-       {/* Continuação Corpo do texto */}
+     
       <div className="mb-6 text-gray-700 text-justify print:text-sm">
          <p className="mb-4">
             Este processo faz parte de um novo projeto que está sendo implementado na área financeira de nossa empresa, e por essa razão necessitamos da liberação dos arquivos solicitados, em Ambiente de Produção.
@@ -170,12 +168,9 @@ export const NexxeraLetterDisplay = memo(({
          </p>
       </div>
 
-
-      {/* Assinatura */}
       <div className="mt-10 text-right print:mt-6">
         <p className="font-semibold mb-6 text-gray-900 print:mb-4">Atenciosamente,</p>
 
-        {/* Contratante Detalhes para Assinatura - Usando tabela para melhor fidelidade ao design de duas colunas */}
         <table className="border border-gray-400 print:border-gray-800 inline-block text-left text-gray-800 print:text-gray-900 text-sm leading-normal border-collapse w-full"> {/* Alterado w-auto para w-full */}
           <tbody>
             <tr>
@@ -196,7 +191,6 @@ export const NexxeraLetterDisplay = memo(({
               <td className="border border-gray-400 print:border-gray-800 py-1 px-2 font-bold">E-MAIL:</td> {/* Ajustado padding */}
               <td className="border border-gray-400 print:border-gray-800 py-1 px-2">{emailRespEmpresa}</td> {/* Ajustado padding */}
             </tr>
-            {/* Responsável Técnico - Placeholder */}
             <tr>
               <td className="border border-gray-400 print:border-gray-800 py-1 px-2 font-bold">RESPONSÁVEL:</td> {/* Ajustado padding */}
               <td className="border border-gray-400 print:border-gray-800 py-1 px-2 pr-4">{respTecnospeedNome}</td> {/* Ajustado padding */}

@@ -9,7 +9,7 @@ interface StepperProps {
 const Stepper: React.FC<StepperProps> = ({ currentStep, steps }) => (
   <nav className="w-full flex justify-center items-center py-4 sm:py-6 md:py-8 bg-transparent overflow-x-auto">
     <div className="relative w-full max-w-full sm:max-w-3xl md:max-w-5xl mx-auto flex flex-col items-center min-w-0">
-    {/*Substitui o items-center por items-baseline para alinhar verticalmente a linha entre as etapas*/}
+
       <ol className="relative flex w-full items-baseline z-10 min-w-[320px] xs:min-w-[400px] sm:min-w-0">
         {steps.map((step, idx) => (
           <React.Fragment key={step}>

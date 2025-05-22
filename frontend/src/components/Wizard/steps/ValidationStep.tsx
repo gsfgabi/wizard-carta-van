@@ -47,8 +47,17 @@ export const ValidationStep = memo(({
         .then(([vanTypesData, productsData]) => {
           setVanTypes(vanTypesData);
           setProducts(productsData);
-          // Seleciona o primeiro produto por padrão
-          if (productsData.length > 0) {
+          // Seleciona o primeiro produto por padrão (agora considera selectedProducts)
+          if (selectedProducts.length > 0 && productsData.length > 0) {
+            const firstSelectedProduct = productsData.find(p => p.id.toString() === selectedProducts[0]);
+            if (firstSelectedProduct) {
+              setSelectedProduct(firstSelectedProduct.id.toString());
+            } else if (productsData.length > 0) {
+              // Fallback: se o primeiro selectedProduct não for encontrado nos dados carregados, use o primeiro dos dados carregados
+              setSelectedProduct(productsData[0].id.toString());
+            }
+          } else if (productsData.length > 0) {
+             // Se não há produtos selecionados na etapa anterior, mas há produtos carregados, use o primeiro dos carregados
             setSelectedProduct(productsData[0].id.toString());
           }
         })
@@ -64,7 +73,7 @@ export const ValidationStep = memo(({
       setProducts([]);
       setLoadingData(false);
     }
-  }, [selectedBank]);
+  }, [selectedBank, selectedProducts]);
 
   // Filtra as cartas pelo produto selecionado
   const filteredLetters = selectedProduct 
@@ -95,28 +104,30 @@ export const ValidationStep = memo(({
       </p>
 
       {/* Seletor de Produto */}
-      {products.length > 1 && (
+      {selectedProducts.length > 1 && (
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-black mb-3">Selecione o Produto:</h3>
           <div className="flex flex-wrap gap-3">
-            {products.map((product) => (
-              <button
-                key={product.id}
-                onClick={() => {
-                  setSelectedProduct(product.id.toString());
-                  setCurrentLetterIndex(0);
-                }}
-                className={`
+            {products
+              .filter(product => selectedProducts.includes(product.id.toString()))
+              .map((product) => (
+                <button
+                  key={product.id}
+                  onClick={() => {
+                    setSelectedProduct(product.id.toString());
+                    setCurrentLetterIndex(0);
+                  }}
+                  className={`
                   px-4 py-2 rounded-full text-sm font-medium transition-colors
                   ${selectedProduct === product.id.toString()
                     ? 'bg-[#8D44AD] text-white'
                     : 'bg-white text-[#8D44AD] border-2 border-[#8D44AD] hover:bg-[#f3eaff]'
                   }
                 `}
-              >
-                {product.name}
-              </button>
-            ))}
+                >
+                  {product.name}
+                </button>
+              ))}
           </div>
         </div>
       )}
@@ -136,7 +147,6 @@ export const ValidationStep = memo(({
           </Button>
         )}
 
-        {/* Exibir Conteúdo da Carta Atual */}
         {currentLetter && (
           <div className="flex-grow max-w-full px-12 py-4">
             <h4 className="font-semibold text-black mb-2">

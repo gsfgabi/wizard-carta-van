@@ -38,7 +38,16 @@ export const Wizard: React.FC<WizardProps> = ({ onBackToIntro }) => {
   const [products, setProducts] = useState<ProductData[]>([]);
   const [cnabs, setCNABs] = useState<CNABData[]>([]);
   const [vanTypes, setVanTypes] = useState<VanTypeData[]>([]);
-  const [generatedLetterContents, setGeneratedLetterContents] = useState<{ type: string, content: string, formData: any, bankInfo: BankData | undefined, productInfo: ProductData[], vanTypeInfo: VanTypeData[], cnabs: CNABData[] }[]>([]);
+  const [generatedLetterContents, setGeneratedLetterContents] = useState<{ 
+    type: string, 
+    content: string, 
+    formData: any, 
+    bankInfo: BankData | undefined, 
+    productInfo: ProductData[], 
+    vanTypeInfo: VanTypeData[], 
+    cnabs: CNABData[],
+    productName: string 
+  }[]>([]);
   const [ticketDetails, setTicketDetails] = useState<{ number: string; link: string } | null>(null);
   const [loadingConfirmAndSend, setLoadingConfirmAndSend] = useState(false);
 
@@ -151,17 +160,16 @@ export const Wizard: React.FC<WizardProps> = ({ onBackToIntro }) => {
       return;
     }
 
-    // Gerar uma carta para cada combinação de produto e VAN
     const lettersWithTypes = productInfo.flatMap(product => 
       vanTypeInfo.map(van => ({
         type: van.type,
-        content: '', // O conteúdo será gerado pelos componentes específicos
+        content: '', 
         formData: formData,
         bankInfo: bankInfo,
-        productInfo: [product], // Passando apenas o produto específico
-        vanTypeInfo: [van], // Passando apenas a VAN específica
+        productInfo: [product],
+        vanTypeInfo: [van], 
         cnabs: cnabs,
-        productName: product.name, // Adicionando nome do produto para referência
+        productName: product.name
       }))
     );
 

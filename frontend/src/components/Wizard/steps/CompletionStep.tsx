@@ -2,9 +2,9 @@ import React, { memo } from 'react';
 import Button from '../../Button/Button';
 
 interface CompletionStepProps {
-  ticketNumber: string; // Placeholder para o número do ticket
-  ticketLink: string; // Placeholder para o link do ticket
-  onStartOver: () => void; // Prop para reiniciar o wizard
+  ticketNumber: string; 
+  ticketLink: string; 
+  onStartOver: () => void; 
 }
 
 export const CompletionStep = memo(({
