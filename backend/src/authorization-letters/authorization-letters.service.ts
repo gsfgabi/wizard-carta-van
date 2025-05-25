@@ -115,11 +115,11 @@ export class AuthorizationLettersService {
       );
     }
     const idBanksNum = Number(id_banks);
-    // if (idBanksNum < 1 || idBanksNum > 37 || !Number.isInteger(idBanksNum)) {
-    //   throw new BadRequestException(
-    //     'id_banks inválido. Deve ser um número inteiro entre 1 e 37.',
-    //   );
-    // }
+    if (idBanksNum < 1 || idBanksNum > 37 || !Number.isInteger(idBanksNum)) {
+      throw new BadRequestException(
+        'id_banks inválido. Deve ser um número inteiro entre 1 e 37.',
+      );
+    }
 
     try {
       const carta = await prisma.authorization_letters.create({

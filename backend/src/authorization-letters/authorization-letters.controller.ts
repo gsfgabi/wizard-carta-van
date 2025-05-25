@@ -1,47 +1,48 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { AuthorizationLettersService } from './authorization-letters.service';
 import { CreateAuthorizationLettersDto } from './dto/create-authorization-letters.dto';
 import { CreateAuthorizationLettersProductsDto } from './dto/create-authorization-letters-products.dto';
 import { CreateAuthorizationLettersVanTypesDto } from './dto/create-authorization-letters-van-types.dto';
 import { convertBigIntToString } from 'src/utils/bigint.helper';
 
-@Controller('auth')
+
+@Controller('forms')
 export class AuthorizationLettersController {
   constructor(private readonly authService: AuthorizationLettersService) {}
 
-  @Post('authorization-letters')
+  @Post('form-authorization-letters')
   async saveAuthorizationLetters(
-    @Body() createAuthorizationLettersDto: CreateAuthorizationLettersDto
+    @Body() createFormAuthorizationLettersDto: CreateAuthorizationLettersDto
   ) {
-    const result = await this.authService.saveAuthorizationLetters(createAuthorizationLettersDto);
+    const result = await this.authService.saveAuthorizationLetters(createFormAuthorizationLettersDto);
     return convertBigIntToString(result);
   }
 
-  @Get('authorization-letters')
+  @Get('form-authorization-letters')
   async getAllAuthorizationLetters() {
     const result = await this.authService.getAllAuthorizationLetters();
     return result.map(convertBigIntToString);
   }
 
-  @Get('authorization-letters/:id')
+  @Get('form-authorization-letters/:id')
   async getAuthorizationLetterById(@Param('id') id: string) {
     const result = await this.authService.getAuthorizationLetterById(Number(id));
     return convertBigIntToString(result);
   }
 
-  @Post('authorization-letters-products')
+  @Post('form-authorization-letters-products')
   async saveAuthorizationLettersProducts(
-    @Body() createAuthorizationLettersProductsDto: CreateAuthorizationLettersProductsDto
+    @Body() createFormAuthorizationLettersProductsDto: CreateAuthorizationLettersProductsDto
   ) {
-    const result = await this.authService.saveAuthorizationLettersProducts(createAuthorizationLettersProductsDto);
+    const result = await this.authService.saveAuthorizationLettersProducts(createFormAuthorizationLettersProductsDto);
     return convertBigIntToString(result);
   }
 
-  @Post('authorization-letters-van-types')
+  @Post('form-authorization-letters-van-types')
   async saveAuthorizationLettersVanTypes(
-    @Body() createAuthorizationLettersVanTypesDto: CreateAuthorizationLettersVanTypesDto
+    @Body() createFormAuthorizationLettersVanTypesDto: CreateAuthorizationLettersVanTypesDto
   ) {
-    const result = await this.authService.saveAuthorizationLettersVanTypes(createAuthorizationLettersVanTypesDto);
+    const result = await this.authService.saveAuthorizationLettersVanTypes(createFormAuthorizationLettersVanTypesDto);
     return convertBigIntToString(result);
   }
 }

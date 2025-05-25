@@ -2,10 +2,7 @@ import React, { useState, useEffect, memo } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import toast from 'react-hot-toast';
 import Button from '../../Button/Button';
-import { getVanTypes, type VanTypeData, getProducts, type ProductData, type CNABData, type BankData } from '../../../services/api';
-import { FinnetLetterDisplay } from '../letters/FinnetLetterDisplay';
-import { NexxeraLetterDisplay } from '../letters/NexxeraLetterDisplay';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
+import { getVanTypes, type VanTypeData, getProducts, type ProductData } from '../../../services/api';
 
 // Configuração do worker do PDF.js
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -73,12 +70,38 @@ export const ValidationStep = memo(({
       setProducts([]);
       setLoadingData(false);
     }
-  }, [selectedBank, selectedProducts]);
+  }, [selectedBank]);
 
-  // Filtra as cartas pelo produto selecionado
-  const filteredLetters = selectedProduct 
-    ? generatedLetterContents.filter(letter => letter.productInfo[0].id.toString() === selectedProduct)
-    : [];
+  const handleGeneratePDF = async () => {
+    setLoadingPdf(true);
+    try {
+      // TODO: Implementar chamada à API para gerar o PDF
+      // Simulação temporária
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setPdfUrl('/sample.pdf');
+      toast.success('PDF gerado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao buscar bancos:', error);
+      toast.error('Erro ao gerar o PDF. Tente novamente.');
+    } finally {
+      setLoadingPdf(false);
+    }
+  };
+
+  const handleConfirmAndSend = async () => {
+    setLoadingPdf(true);
+    try {
+      // TODO: Implementar chamada à API para criar ticket no Zendesk
+      // TODO: Implementar envio de e-mail
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      toast.success('Carta enviada com sucesso!');
+    } catch (error) {
+      console.error('Erro ao enviar carta:', error);
+      toast.error('Erro ao enviar a carta. Tente novamente.');
+    } finally {
+      setLoadingPdf(false);
+    }
+  };
 
   const handleNextLetter = () => {
     if (currentLetterIndex < filteredLetters.length - 1) {
@@ -274,11 +297,18 @@ export const ValidationStep = memo(({
         <Button
           type="button"
           className="bg-[#8D44AD] text-white rounded-full px-10 py-2 font-semibold shadow-md hover:bg-[#7d379c] transition disabled:opacity-50"
-          onClick={onConfirmAndSend}
-          disabled={loadingData || generatedLetterContents.length === 0 || loadingConfirmAndSend}
+          onClick={handleGeneratePDF}
+          disabled={loadingData || loadingPdf || selectedProducts.length === 0 || selectedVanTypes.length === 0}
         >
           {loadingConfirmAndSend ? 'Enviando...' : 'Confirmar e Enviar Carta'}
         </Button>
+
+        <Modal isOpen={isModalOpen} onClose={handleCancel}>
+                <Confirmation
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                />
+            </Modal>
       </div>
     </>
   );
