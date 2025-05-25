@@ -1,11 +1,25 @@
 import React, { useState, useEffect, memo } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import toast from 'react-hot-toast';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import Button from '../../Button/Button';
+import Modal from '../../Modal/Modal';
+import Confirmation from '../../Modal/Confirmation';
 import { getVanTypes, type VanTypeData, getProducts, type ProductData } from '../../../services/api';
 
 // Configuração do worker do PDF.js
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
+interface BankData {
+  id: number;
+  name: string;
+  // Add other bank properties as needed
+}
+
+interface CNABData {
+  id: number;
+  // Add CNAB properties as needed
+}
 
 interface ValidationStepProps {
   selectedProducts: string[];
@@ -16,6 +30,35 @@ interface ValidationStepProps {
   onConfirmAndSend: () => Promise<void>;
   loadingConfirmAndSend: boolean;
 }
+
+interface LetterDisplayProps {
+  data: {
+    type: string;
+    content: string;
+    formData: any;
+    bankInfo: BankData | undefined;
+    productInfo: ProductData[];
+    vanTypeInfo: VanTypeData[];
+    cnabs: CNABData[];
+    productName: string;
+  };
+}
+
+const FinnetLetterDisplay: React.FC<LetterDisplayProps> = ({ data }) => {
+  return (
+    <div className="whitespace-pre-wrap text-sm text-gray-800">
+      {data.content}
+    </div>
+  );
+};
+
+const NexxeraLetterDisplay: React.FC<LetterDisplayProps> = ({ data }) => {
+  return (
+    <div className="whitespace-pre-wrap text-sm text-gray-800">
+      {data.content}
+    </div>
+  );
+};
 
 export const ValidationStep = memo(({
   selectedProducts,
@@ -28,10 +71,26 @@ export const ValidationStep = memo(({
 }: ValidationStepProps) => {
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
   const [loadingData, setLoadingData] = useState(true);
+  const [loadingPdf, setLoadingPdf] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [vanTypes, setVanTypes] = useState<VanTypeData[]>([]);
   const [products, setProducts] = useState<ProductData[]>([]);
   const [dataError, setDataError] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
+
+  const filteredLetters = generatedLetterContents.filter(
+    letter => letter.productInfo.some(p => p.id.toString() === selectedProduct)
+  );
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleConfirm = async () => {
+    setIsModalOpen(false);
+    await onConfirmAndSend();
+  };
 
   useEffect(() => {
     if (selectedBank) {
