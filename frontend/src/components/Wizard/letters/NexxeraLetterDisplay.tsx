@@ -118,6 +118,7 @@ export const NexxeraLetterDisplay = memo(({
                </tr>
              </thead>
              <tbody>
+              
                <tr>
                  
                  {productInfo.slice(0, 3).map((product, prodIndex) => (
